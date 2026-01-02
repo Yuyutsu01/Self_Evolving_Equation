@@ -9,22 +9,20 @@ class LiveVisualizer:
         # Buffers
         self.time = deque(maxlen=max_steps)
         self.x_values = deque(maxlen=max_steps)
-        self.x_next_values = deque(maxlen=max_steps)
         self.a_values = deque(maxlen=max_steps)
 
         # Setup figure
         self.fig, self.axes = plt.subplots(3, 1, figsize=(8, 10))
         plt.ion()
 
-        # --- Time Series Plot ---
+        # --- Time Series ---
         self.ax_time = self.axes[0]
         self.line_time, = self.ax_time.plot([], [], lw=2)
         self.ax_time.set_title("State Evolution x(t)")
-        self.ax_time.set_xlim(0, max_steps)
         self.ax_time.set_ylim(*x_limits)
         self.ax_time.set_ylabel("x")
 
-        # --- Phase Space Plot ---
+        # --- Phase Space ---
         self.ax_phase = self.axes[1]
         self.scatter_phase = self.ax_phase.scatter([], [], s=10)
         self.ax_phase.set_title("Phase Space x(t) vs x(t+1)")
@@ -33,14 +31,13 @@ class LiveVisualizer:
         self.ax_phase.set_xlabel("x(t)")
         self.ax_phase.set_ylabel("x(t+1)")
 
-        # --- Parameter Plot ---
+        # --- Parameter Evolution ---
         self.ax_param = self.axes[2]
         self.line_param, = self.ax_param.plot([], [], color="orange", lw=2)
         self.ax_param.set_title("Parameter Evolution a(t)")
-        self.ax_param.set_xlim(0, max_steps)
+        self.ax_param.set_ylabel("a")
         self.ax_param.set_ylim(*a_limits)
         self.ax_param.set_xlabel("time")
-        self.ax_param.set_ylabel("a")
 
         plt.tight_layout()
         plt.show()
@@ -51,22 +48,23 @@ class LiveVisualizer:
         self.x_values.append(x)
         self.a_values.append(a)
 
-        # Phase space requires x(t+1)
-        if len(self.x_values) > 1:
-            self.x_next_values.append(self.x_values[-1])
+        # Convert to lists for slicing
+        t_list = list(self.time)
+        x_list = list(self.x_values)
+        a_list = list(self.a_values)
 
-        # --- Update Time Series ---
-        self.line_time.set_data(self.time, self.x_values)
+        # --- Time Series ---
+        self.line_time.set_data(t_list, x_list)
         self.ax_time.set_xlim(max(0, t - self.max_steps), t + 1)
 
-        # --- Update Phase Space ---
-        if len(self.x_next_values) > 0:
+        # --- Phase Space ---
+        if len(x_list) > 1:
             self.scatter_phase.set_offsets(
-                list(zip(self.x_values[:-1], self.x_next_values))
+                list(zip(x_list[:-1], x_list[1:]))
             )
 
-        # --- Update Parameter Plot ---
-        self.line_param.set_data(self.time, self.a_values)
+        # --- Parameter Evolution ---
+        self.line_param.set_data(t_list, a_list)
         self.ax_param.set_xlim(max(0, t - self.max_steps), t + 1)
 
         # Redraw
