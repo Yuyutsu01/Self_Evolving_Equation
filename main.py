@@ -1,51 +1,69 @@
 import time
+import numpy as np
 
-from model import step
-from memory import Memory
 import config
 from visualize import LiveVisualizer
 
 
-def main():
-    # Initialize state and parameter
-    x = config.X_INIT
-    a = config.A_INIT
+# ===============================
+# Spatial Configuration
+# ===============================
 
-    # Initialize memory
-    memory = Memory(config.MEMORY_WINDOW)
+GRID_SIZE = (50, 50)      # Spatial resolution
+DIFFUSION = 0.05          # Spatial coupling strength
+SLEEP_TIME = 0.03         # Controls animation speed
 
-    # Initialize visualization
-    visualizer = LiveVisualizer(
-        max_steps=config.MAX_STEPS,
-        x_limits=(config.X_MIN, config.X_MAX),
-        a_limits=(config.A_MIN, config.A_MAX),
+
+# ===============================
+# Helper: Discrete Laplacian
+# ===============================
+
+def laplacian(Z):
+    """
+    Compute a 2D discrete Laplacian using periodic boundaries.
+    """
+    return (
+        -4 * Z
+        + np.roll(Z, 1, axis=0)
+        + np.roll(Z, -1, axis=0)
+        + np.roll(Z, 1, axis=1)
+        + np.roll(Z, -1, axis=1)
     )
 
-    t = 0
+
+# ===============================
+# Main Loop
+# ===============================
+
+def main():
+    # Initial spatial state
+    X = np.random.rand(*GRID_SIZE)
+
+    # Global adaptive parameter
+    a = config.A_INIT
+
+    # Visualization
+    visualizer = LiveVisualizer(
+        grid_size=GRID_SIZE,
+        z_limits=(config.X_MIN, config.X_MAX)
+    )
 
     while True:
-        # Update memory with current state
-        memory.update(x)
+        # --- Spatial State Update ---
+        X = a * X * (1.0 - X) + DIFFUSION * laplacian(X)
+        X = np.clip(X, config.X_MIN, config.X_MAX)
 
-        # Compute variance from memory
-        variance = memory.variance()
+        # --- Measure Global Behavior ---
+        variance = np.var(X)
 
-        # Step the system
-        x, a = step(
-            x=x,
-            a=a,
-            variance=variance,
-            epsilon=config.EPSILON,
-            target_variance=config.TARGET_VARIANCE,
-        )
+        # --- Adapt Parameter ---
+        a = a + config.EPSILON * (variance - config.TARGET_VARIANCE)
+        a = np.clip(a, config.A_MIN, config.A_MAX)
 
-        # Update visualization
-        visualizer.update(t, x, a)
+        # --- Visualization ---
+        visualizer.update(X)
 
-        t += 1
-
-        # Small pause to control animation speed
-        time.sleep(0.02)
+        time.sleep(SLEEP_TIME)
 
 
 if __name__ == "__main__":
