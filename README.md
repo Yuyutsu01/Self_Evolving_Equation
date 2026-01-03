@@ -32,3 +32,57 @@ The system consists of:
 
 Together, these form a closed loop:
 
+state → memory → adaptation → updated rule → next state
+
+
+This loop never stops.
+
+---
+
+## Mathematical Model
+
+### State evolution
+x(t+1) = a(t) · x(t) · (1 − x(t))
+
+
+### Parameter adaptation
+a(t+1) = a(t) + ε · (Var(x_recent) − τ)
+
+
+Where:
+- `x(t)` is the system state
+- `a(t)` is a time-varying parameter
+- `ε` controls how fast the parameter adapts
+- `τ` is a target variability
+- `Var(x_recent)` is the variance over a short rolling window
+
+If the system becomes too stable, it increases complexity.  
+If it becomes too chaotic, it self-regulates.
+
+---
+
+## Live Visualization (Planned)
+
+When running the simulation, the following plots update continuously:
+
+1. **Time Series** – evolution of the system state  
+2. **Phase Space** – structure of the dynamics (`x(t)` vs `x(t+1)`)  
+3. **Parameter Evolution** – how the equation’s rule changes over time  
+
+These visualizations make both the motion and self-modification of the equation directly observable.
+
+---
+
+## Project Structure
+
+self-evolving-equation/
+│
+├── main.py # Runs the live simulation (entry point)
+├── model.py # Equation and parameter update logic
+├── memory.py # Rolling memory and variance computation
+├── visualize.py # Live animated plots
+├── config.py # Initial values and constants
+├── utils.py # Small helper functions
+│
+├── requirements.txt
+└── README.md
