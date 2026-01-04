@@ -86,3 +86,66 @@ self-evolving-equation/
 │
 ├── requirements.txt
 └── README.md
+
+
+The structure is intentionally simple and easy to follow.
+
+---
+
+## How to Run (Once Complete)
+
+1. Clone the repository
+git clone https://github.com/yuyustu01/self-evolving-equation.git
+
+cd self-evolving-equation
+
+2. Install dependencies
+pip install -r requirements.txt
+
+
+3. Run the simulation
+
+
+A window will open showing live, moving graphs.
+
+---
+
+## Configuration
+
+All system behavior can be adjusted from `config.py`, including:
+- Initial state and parameter values
+- Adaptation rate
+- Target variability
+- Memory window size
+- Plot limits
+
+Small changes can lead to very different dynamics.
+
+---
+
+## Purpose
+
+This project exists to show that lifelike behavior can emerge from:
+- Nonlinearity
+- Feedback
+- Memory
+
+without intelligence, learning, or data.
+
+It is meant to be explored visually and intuitively.
+
+---
+
+## License
+
+MIT License.
+
+---
+
+## Closing Thought
+
+This project is not about complexity.
+
+It is about one idea taken seriously:
+
+**An equation that changes itself.**

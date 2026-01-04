@@ -3,10 +3,10 @@
 # ===============================
 
 # Initial state (must be in (0, 1) for logistic-style dynamics)
-X_INIT = 0.4
+X_INIT = 0.42
 
 # Initial parameter value
-A_INIT = 3.2
+A_INIT = 3.25
 
 
 # Adaptation Settings
