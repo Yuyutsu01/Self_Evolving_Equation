@@ -7,13 +7,13 @@ class LiveVisualizer:
     def __init__(self, grid_size=(50, 50), z_limits=(0, 1)):
         self.nx, self.ny = grid_size
 
-        # Create grid
+        # Spatial grid
         self.X, self.Y = np.meshgrid(
             np.linspace(0, 1, self.nx),
             np.linspace(0, 1, self.ny)
         )
 
-        # Setup figure
+        # Figure setup
         self.fig = plt.figure(figsize=(10, 7))
         self.ax = self.fig.add_subplot(111, projection="3d")
         plt.ion()
@@ -33,15 +33,20 @@ class LiveVisualizer:
         self.ax.set_ylabel("Space Y")
         self.ax.set_zlabel("State")
 
-        # Camera polish
-        self.ax.view_init(elev=35, azim=45)
+        # Camera
+        self.elev = 35
+        self.azim = 45
+        self.ax.view_init(elev=self.elev, azim=self.azim)
 
         plt.tight_layout()
         plt.show()
 
     def update(self, Z):
-        self.ax.collections.clear()
+        # Remove previous surface safely
+        if self.surface is not None:
+            self.surface.remove()
 
+        # Draw new surface
         self.surface = self.ax.plot_surface(
             self.X, self.Y, Z,
             cmap="inferno",
@@ -49,11 +54,9 @@ class LiveVisualizer:
             antialiased=True
         )
 
-        # Slow camera rotation for life-like feel
-        self.ax.view_init(
-            elev=35,
-            azim=(self.ax.azim + 0.5) % 360
-        )
+        # Gentle camera rotation
+        self.azim = (self.azim + 0.4) % 360
+        self.ax.view_init(elev=self.elev, azim=self.azim)
 
         self.fig.canvas.draw()
         self.fig.canvas.flush_events()
